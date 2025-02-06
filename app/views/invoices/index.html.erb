@@ -1,0 +1,50 @@
+<div class="row mb-4">
+  <div class="col">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1>Processed Invoices</h1>
+      <%= link_to 'Upload New Invoice', upload_invoices_path, class: 'btn btn-primary' %>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <% if @processed_barcodes.any? %>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th>Barcode Number</th>
+              <th>Status</th>
+              <th>CRN</th>
+              <th>Provider</th>
+              <th>Amount</th>
+              <th>Processed At</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @processed_barcodes.each do |barcode| %>
+              <tr>
+                <td><%= barcode.barcode_number %></td>
+                <td>
+                  <span class="badge bg-<%= barcode.status == 'success' ? 'success' : 'danger' %>">
+                    <%= barcode.status.titleize %>
+                  </span>
+                </td>
+                <td><%= barcode.crn %></td>
+                <td><%= barcode.provider_name %></td>
+                <td><%= number_to_currency(barcode.amount) if barcode.amount %></td>
+                <td><%= barcode.processed_at.strftime('%B %d, %Y %H:%M:%S') %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="alert alert-info">
+        <h4 class="alert-heading">No Processed Invoices Yet</h4>
+        <p class="mb-0">Upload your first invoice to see the results here.</p>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,57 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="mb-0">Upload Invoice</h2>
+      </div>
+      <div class="card-body">
+        <%= form_for :invoice, url: process_upload_invoices_path, html: { multipart: true, class: 'needs-validation', novalidate: true } do |f| %>
+          <div class="mb-3">
+            <%= f.label :file, 'Select Invoice (PDF)', class: 'form-label' %>
+            <%= f.file_field :file, class: 'form-control', accept: 'application/pdf', required: true %>
+            <div class="invalid-feedback">
+              Please select a PDF file.
+            </div>
+          </div>
+
+          <div class="d-grid gap-2">
+            <%= f.submit 'Upload and Process', class: 'btn btn-primary btn-lg' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="card mt-4">
+      <div class="card-header">
+        <h3 class="mb-0">Instructions</h3>
+      </div>
+      <div class="card-body">
+        <ol class="mb-0">
+          <li>Select a PDF invoice containing a barcode</li>
+          <li>Click "Upload and Process" to scan the barcode</li>
+          <li>The system will extract and validate the barcode data</li>
+          <li>Results will be displayed on the home page</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% content_for :page_scripts do %>
+  <script>
+    // Form validation
+    (function() {
+      'use strict'
+      var forms = document.querySelectorAll('.needs-validation')
+      Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+          form.classList.add('was-validated')
+        }, false)
+      })
+    })()
+  </script>
+<% end %>

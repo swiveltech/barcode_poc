@@ -1,0 +1,2 @@
+class ProcessedBarcode < ApplicationRecord
+end

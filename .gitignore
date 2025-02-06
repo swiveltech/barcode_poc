@@ -1,0 +1,35 @@
+# Ignore bundler config.
+/.bundle
+
+# Ignore all logfiles and tempfiles.
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
+# Ignore uploaded files in development
+/storage/*
+!/storage/.keep
+
+/node_modules
+/yarn-error.log
+
+.byebug_history
+
+# Ignore master key for decrypting credentials
+/config/master.key
+
+# Ignore database config with sensitive data
+/config/database.yml
+
+# Ignore environment variables
+.env
+.env.*
+
+# Ignore test coverage
+/coverage/
+
+# Ignore system files
+.DS_Store
+*.swp
+*~

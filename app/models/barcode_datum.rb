@@ -1,0 +1,2 @@
+class BarcodeDatum < ApplicationRecord
+end

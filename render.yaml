@@ -4,7 +4,7 @@ services:
     env: ruby
     runtime: ruby
     buildCommand: "./bin/render-build.sh"
-    startCommand: ". $HOME/.bashrc && bundle exec rails s -p $PORT -e production"
+    startCommand: ". $HOME/.bashrc && rbenv local 2.6.6 && ruby -v && bundle exec rails s -p $PORT -e production"
     packages:
       - zbar-tools 
     envVars:

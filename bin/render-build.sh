@@ -16,6 +16,7 @@ eval "$(~/.rbenv/bin/rbenv init -)"
 echo "==> Debug: Installing Ruby 2.6.6"
 rbenv install 2.6.6
 rbenv global 2.6.6
+rbenv local 2.6.6
 
 echo "==> Debug: Ruby version after rbenv install"
 ruby -v

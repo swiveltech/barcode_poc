@@ -3,8 +3,7 @@ services:
     name: barcode-processor
     env: ruby
     runtime: ruby
-    runtimeVersion: 2.6.6
-    buildCommand: "./bin/render-build.sh"
+    buildCommand: "RUBY_VERSION=2.6.6 ./bin/render-build.sh"
     startCommand: "bundle exec puma -C config/puma.rb"
     packages:
       - zbar-tools 
@@ -17,6 +16,8 @@ services:
         fromDatabase:
           name: barcode_processor_db
           property: connectionString
+      - key: RUBY_VERSION
+        value: 2.6.6
 
 databases:
   - name: barcode_processor_db

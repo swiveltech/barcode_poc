@@ -17,18 +17,24 @@ echo "==> Debug: Installing Ruby 2.6.6"
 rbenv install 2.6.6
 rbenv global 2.6.6
 rbenv local 2.6.6
+rbenv rehash
+
+# Add rbenv to PATH permanently
+echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
+echo 'eval "$(rbenv init -)"' >> ~/.bashrc
+source ~/.bashrc
 
 echo "==> Debug: Ruby version after rbenv install"
 ruby -v
 which ruby
 
-# Install bundler
 echo "==> Debug: Installing bundler"
 gem install bundler -v '1.17.3'
 
 echo "==> Debug: Bundler version"
 bundle -v
 
+echo "==> Debug: Starting build commands"
 # Build commands
 bundle install
 bundle exec rake assets:precompile

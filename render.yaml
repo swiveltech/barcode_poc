@@ -2,8 +2,9 @@ services:
   - type: web
     name: barcode-processor
     env: ruby
+    runtime: ruby
     buildCommand: "./bin/render-build.sh"
-    startCommand: "bundle exec rails s -p $PORT -e production"
+    startCommand: ". $HOME/.bashrc && rbenv local 2.6.6 && ruby -v && bundle exec rails s -p $PORT -e production"
     packages:
       - zbar-tools 
     envVars:
@@ -15,8 +16,6 @@ services:
         fromDatabase:
           name: barcode_processor_db
           property: connectionString
-      - key: RUBY_VERSION
-        value: 2.6.6
 
 databases:
   - name: barcode_processor_db

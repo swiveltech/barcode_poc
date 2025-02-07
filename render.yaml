@@ -11,7 +11,8 @@ services:
         fromDatabase:
           name: barcode_processor_db
           property: connectionString
-
+    runtime: ruby
+    runtimeVersion: "2.6.6"
 databases:
   - name: barcode_processor_db
     databaseName: barcode_processor

@@ -3,7 +3,7 @@ services:
     name: barcode-processor
     env: ruby
     runtime: ruby
-    buildCommand: "RUBY_VERSION=2.6.6 ./bin/render-build.sh"
+    buildCommand: "./bin/render-build.sh"
     startCommand: "bundle exec puma -C config/puma.rb"
     packages:
       - zbar-tools 

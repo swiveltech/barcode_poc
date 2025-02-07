@@ -2,11 +2,15 @@
 # exit on error
 set -o errexit
 
-# Install and use specific Ruby version
-curl -sSL https://get.rvm.io | bash -s stable
-source /etc/profile.d/rvm.sh
-rvm install 2.6.6
-rvm use 2.6.6
+# Install rbenv
+git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(~/.rbenv/bin/rbenv init -)"
+
+# Install Ruby
+rbenv install 2.6.6
+rbenv global 2.6.6
 
 # Install bundler
 gem install bundler -v '1.17.3'

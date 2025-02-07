@@ -6,6 +6,8 @@ services:
     runtimeVersion: 2.6.6
     buildCommand: "./bin/render-build.sh"
     startCommand: "bundle exec puma -C config/puma.rb"
+    packages:
+      - zbar-tools 
     envVars:
       - key: SECRET_KEY_BASE
         sync: false

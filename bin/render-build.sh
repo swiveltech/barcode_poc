@@ -2,6 +2,9 @@
 # exit on error
 set -o errexit
 
+# Create required directories
+mkdir -p /var/lib/apt/lists/partial
+
 # Install system dependencies
 apt-get update -qq 
 apt-get install -y zbar-tools

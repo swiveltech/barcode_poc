@@ -78,11 +78,15 @@ class InvoiceProcessor
     
     if output.strip.empty?
       Rails.logger.debug "Direct scan failed, trying with image conversion..."
-      image_path = "#{pdf_path}.png"
+      # Use a directory we know deploy user has access to
+      image_path = File.join(Rails.root, 'tmp', "#{File.basename(pdf_path)}.png")
+      
       convert_cmd = "convert -density 300 '#{pdf_path}[0]' #{image_path}"
+      Rails.logger.debug "Running convert command: #{convert_cmd}"
       system(convert_cmd)
       
       if File.exist?(image_path)
+        Rails.logger.debug "Image converted successfully, size: #{File.size(image_path)} bytes"
         output = `zbarimg --quiet --raw #{image_path} 2>/dev/null`
         File.unlink(image_path)  # Clean up
       end

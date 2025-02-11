@@ -72,11 +72,13 @@ class InvoiceProcessor
     Rails.logger.debug "Starting barcode scan for PDF: #{pdf_path}"
     Rails.logger.debug "Running zbarimg command on PDF..."
     
-    # Try direct PDF scanning first
-    output = `zbarimg --quiet --raw #{pdf_path} 2>/dev/null`
-    Rails.logger.debug "Direct PDF scan output: #{output}"
+    # Try direct PDF scanning first with error capture
+    scan_cmd = "zbarimg --quiet --raw #{pdf_path}"
+    Rails.logger.debug "Running command: #{scan_cmd}"
+    output = `#{scan_cmd} 2>&1`  # Capture both stdout and stderr
+    Rails.logger.debug "Direct PDF scan output with errors: #{output}"
     
-    if output.strip.empty?
+    if output.strip.empty? || output.include?("error")
       Rails.logger.debug "Direct scan failed, trying with image conversion..."
       # Use a directory we know deploy user has access to
       image_path = File.join(Rails.root, 'tmp', "#{File.basename(pdf_path)}.png")
@@ -87,12 +89,13 @@ class InvoiceProcessor
       
       if File.exist?(image_path)
         Rails.logger.debug "Image converted successfully, size: #{File.size(image_path)} bytes"
-        output = `zbarimg --quiet --raw #{image_path} 2>/dev/null`
+        output = `zbarimg --quiet --raw #{image_path} 2>&1`  # Capture errors here too
+        Rails.logger.debug "Image scan output with errors: #{output}"
         File.unlink(image_path)  # Clean up
       end
     end
     
-    barcodes = output.split("\n").reject(&:empty?)
+    barcodes = output.split("\n").reject { |line| line.include?("error") || line.empty? }
     Rails.logger.debug "Found #{barcodes.length} barcodes: #{barcodes.inspect}"
     barcodes
   end

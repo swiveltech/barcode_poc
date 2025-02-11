@@ -12,10 +12,20 @@ class InvoicesController < ApplicationController
 
   def process_upload
     if params[:invoice].present? && params[:invoice][:file].present?
-      file = params[:invoice][:file]
+      uploaded_file = params[:invoice][:file]
+      temp_file = Tempfile.new(['invoice', '.pdf'])
+
+      begin
+      Rails.logger.debug "Created temp file: #{temp_file.path}"
+      
+      # Copy the uploaded file content
+    FileUtils.copy_file(uploaded_file.tempfile.path, temp_file.path)
+    Rails.logger.debug "Copied content from #{uploaded_file.tempfile.path} to #{temp_file.path}"
+    
+
       processor = InvoiceProcessor.new
       
-      result = processor.process_invoice(file.path)
+      result = processor.process_invoice(temp_file.path)
       
       if result[:success]
         flash[:success] = 'Invoice processed successfully!'
@@ -23,6 +33,11 @@ class InvoicesController < ApplicationController
       else
         flash[:error] = result[:error] || 'Failed to process invoice'
       end
+
+    ensure
+      temp_file.close
+      temp_file.unlink
+    end
 
       redirect_to invoices_path
     else

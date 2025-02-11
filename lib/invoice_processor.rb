@@ -71,10 +71,23 @@ class InvoiceProcessor
   def scan_pdf_for_barcodes(pdf_path)
     Rails.logger.debug "Starting barcode scan for PDF: #{pdf_path}"
     Rails.logger.debug "Running zbarimg command on PDF..."
-    output = `zbarimg --quiet --raw #{pdf_path} 2>/dev/null`
-    Rails.logger.debug "zbarimg output: #{output}"
     
-    # Split output into lines and remove empty lines
+    # Try direct PDF scanning first
+    output = `zbarimg --quiet --raw #{pdf_path} 2>/dev/null`
+    Rails.logger.debug "Direct PDF scan output: #{output}"
+    
+    if output.strip.empty?
+      Rails.logger.debug "Direct scan failed, trying with image conversion..."
+      image_path = "#{pdf_path}.png"
+      convert_cmd = "convert -density 300 '#{pdf_path}[0]' #{image_path}"
+      system(convert_cmd)
+      
+      if File.exist?(image_path)
+        output = `zbarimg --quiet --raw #{image_path} 2>/dev/null`
+        File.unlink(image_path)  # Clean up
+      end
+    end
+    
     barcodes = output.split("\n").reject(&:empty?)
     Rails.logger.debug "Found #{barcodes.length} barcodes: #{barcodes.inspect}"
     barcodes

@@ -16,10 +16,12 @@ class InvoiceProcessor
   MASK = '*#####RRRRRRRRRRRR########$$$$$$$'
 
   def initialize(mask_pattern = MASK)
+    Rails.logger.debug "========= INVOICE PROCESSOR INITIALIZED ========="
     @store = BarcodeStore.instance
   end
 
   def process_invoice(pdf_path)
+     Rails.logger.debug "========= PROCESS_INVOICE CALLED ========="
     Rails.logger.debug "Processing invoice from: #{pdf_path}"
     barcodes = scan_pdf_for_barcodes(pdf_path)
     

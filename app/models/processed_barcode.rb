@@ -3,10 +3,8 @@ class ProcessedBarcode < ApplicationRecord
   MASK = '*#####RRRRRRRRRRRR########$$$$$$$'
   
   # Validations
-  validates :barcode_number, presence: true
-  validates :mask_used, presence: true
+  validates :original_filename, presence: true
   validates :status, presence: true
-  validates :processed_at, presence: true
   
   # Scopes
   scope :recent, -> { order(processed_at: :desc) }

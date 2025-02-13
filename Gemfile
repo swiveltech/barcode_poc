@@ -46,6 +46,8 @@ gem 'carrierwave'            # For file uploads
 
 # Background Processing
 gem 'sidekiq'                # For background jobs
+gem 'aws-sdk-s3'
+gem 'dotenv-rails'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

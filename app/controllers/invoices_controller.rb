@@ -1,60 +1,64 @@
-require Rails.root.join('lib', 'invoice_processor').to_s
-require Rails.root.join('lib', 'barcode_mask').to_s
-require Rails.root.join('lib', 'barcode_store').to_s
-
 class InvoicesController < ApplicationController
   def index
     @processed_barcodes = ProcessedBarcode.order(processed_at: :desc).limit(10)
   end
 
-  def upload
+  def process_upload
+    @processed_barcode = ProcessedBarcode.new(
+      original_filename: params[:invoice][:file].original_filename,
+      status: 'pending',
+      processed_at: Time.current 
+    )
+
+    if @processed_barcode.save
+      upload_to_s3
+      render json: { success: true, message: 'Invoice uploaded successfully', id: @processed_barcode.id }
+    else
+      render json: { success: false, message: @processed_barcode.errors.full_messages.join(', ') }, 
+             status: :unprocessable_entity
+    end
+  rescue StandardError => e
+    Rails.logger.error "Upload failed: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
+    render json: { success: false, message: "Upload failed: #{e.message}" }, status: :internal_server_error
   end
 
-  def process_upload
-    if params[:invoice].present? && params[:invoice][:file].present?
-      uploaded_file = params[:invoice][:file]
+  private
 
-      Rails.logger.debug "=== Starting Upload Process ==="
-    Rails.logger.debug "Original file: #{uploaded_file.original_filename}"
-    Rails.logger.debug "Temp file path: #{uploaded_file.tempfile.path}"
-    Rails.logger.debug "File size: #{File.size(uploaded_file.tempfile.path)} bytes"
-    
-      temp_file = Tempfile.new(['invoice', '.pdf'])
+  def upload_to_s3
+    s3_client = Aws::S3::Client.new(
+      region: ENV['AWS_REGION'],
+      credentials: Aws::Credentials.new(
+        ENV['AWS_ACCESS_KEY_ID'],
+        ENV['AWS_SECRET_ACCESS_KEY']
+      )
+    )
 
-      begin
-      Rails.logger.debug "Created temp file: #{temp_file.path}"
+    s3_path = "invoices/#{@processed_barcode.id}/#{@processed_barcode.original_filename}"
+
+    begin
+      Rails.logger.info "Attempting to upload to S3: #{s3_path}"
+      Rails.logger.info "Using bucket: #{ENV['AWS_BUCKET']}"
       
-      # Copy the uploaded file content
-    FileUtils.copy_file(uploaded_file.tempfile.path, temp_file.path)
-    Rails.logger.debug "Copied file. New size: #{File.size(temp_file.path)} bytes"
-    Rails.logger.debug "File exists? #{File.exist?(temp_file.path)}"
-    Rails.logger.debug "File permissions: #{File.stat(temp_file.path).mode.to_s(8)}"
-    
-    Rails.logger.debug "Testing zbarimg directly:"
-    command_output = `which zbarimg`
-    Rails.logger.debug "zbarimg location: #{command_output}"
-    Rails.logger.debug "zbarimg test output: #{`zbarimg --version`}"
-      processor = InvoiceProcessor.new
+      s3_client.put_object(
+        bucket: ENV['AWS_BUCKET'],
+        key: s3_path,
+        body: params[:invoice][:file].read
+      )
       
-      result = processor.process_invoice(temp_file.path)
-      
-       Rails.logger.debug "Process result: #{result.inspect}"
-      if result[:success]
-        flash[:success] = 'Invoice processed successfully!'
-        @barcode_data = result
-      else
-        flash[:error] = result[:error] || 'Failed to process invoice'
-      end
-
-    ensure
-      temp_file.close
-      temp_file.unlink
-    end
-
-      redirect_to invoices_path
-    else
-      flash[:error] = 'Please select a file to upload'
-      redirect_to upload_invoices_path
+      @processed_barcode.update(
+        s3_path: s3_path,
+        status: 'processing',
+        processed_at: Time.current
+      )
+    rescue StandardError => e
+      Rails.logger.error "S3 upload failed: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+      @processed_barcode.update(
+        status: 'failed',
+        error_message: e.message
+      )
+      raise e
     end
   end
 end

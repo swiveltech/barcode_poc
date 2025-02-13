@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250206130146) do
+ActiveRecord::Schema.define(version: 20250213133728) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -28,8 +28,8 @@ ActiveRecord::Schema.define(version: 20250206130146) do
   end
 
   create_table "processed_barcodes", force: :cascade do |t|
-    t.string "barcode_number", null: false
-    t.string "mask_used", null: false
+    t.string "barcode_number"
+    t.string "mask_used"
     t.boolean "success", default: false
     t.datetime "processed_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "created_at", null: false
@@ -38,6 +38,8 @@ ActiveRecord::Schema.define(version: 20250206130146) do
     t.string "crn"
     t.string "provider_name"
     t.decimal "amount", precision: 10, scale: 2
+    t.string "original_filename"
+    t.string "s3_path"
     t.index ["barcode_number"], name: "index_processed_barcodes_on_barcode_number"
     t.index ["crn"], name: "index_processed_barcodes_on_crn"
     t.index ["processed_at"], name: "index_processed_barcodes_on_processed_at"

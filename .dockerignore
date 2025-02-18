@@ -1,0 +1,8 @@
+.git
+.gitignore
+log/*
+tmp/*
+db/*.sqlite3
+pdf_processor/
+pdf_processor_go/
+test_files/

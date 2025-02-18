@@ -28,7 +28,10 @@
 
 # Ignore test coverage
 /coverage/
-
+db/*.sqlite3
+pdf_processor/
+test_files/
+pdf_processor_go/lambda.zip
 # Ignore system files
 .DS_Store
 *.swp

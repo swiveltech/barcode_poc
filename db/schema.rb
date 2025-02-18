@@ -12,9 +12,6 @@
 
 ActiveRecord::Schema.define(version: 20250213133728) do
 
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
   create_table "barcode_data", force: :cascade do |t|
     t.string "crn", null: false
     t.string "provider_name", null: false
@@ -31,7 +28,7 @@ ActiveRecord::Schema.define(version: 20250213133728) do
     t.string "barcode_number"
     t.string "mask_used"
     t.boolean "success", default: false
-    t.datetime "processed_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "processed_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "status"

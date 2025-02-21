@@ -19,16 +19,20 @@
 # Ignore master key for decrypting credentials
 /config/master.key
 
-# Ignore database config with sensitive data
-/config/database.yml
-
 # Ignore environment variables
 .env
 .env.*
 
 # Ignore test coverage
 /coverage/
-
+db/*.sqlite3
+pdf_processor/
+pdf_processor_go/test/
+test_files/
+test_files/
+pdf_processor_go/lambda.zip
+pdf_processor_go/new_lambda.zip
+pdf_processor_go/bootstrap
 # Ignore system files
 .DS_Store
 *.swp

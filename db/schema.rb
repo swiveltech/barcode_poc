@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250213133728) do
+ActiveRecord::Schema.define(version: 20250220100554) do
 
   create_table "barcode_data", force: :cascade do |t|
     t.string "crn", null: false
@@ -37,6 +37,9 @@ ActiveRecord::Schema.define(version: 20250213133728) do
     t.decimal "amount", precision: 10, scale: 2
     t.string "original_filename"
     t.string "s3_path"
+    t.text "error_message"
+    t.string "pdf_file"
+    t.string "s3_bucket"
     t.index ["barcode_number"], name: "index_processed_barcodes_on_barcode_number"
     t.index ["crn"], name: "index_processed_barcodes_on_crn"
     t.index ["processed_at"], name: "index_processed_barcodes_on_processed_at"

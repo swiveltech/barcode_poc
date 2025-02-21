@@ -4,6 +4,7 @@ import (
 	"context"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"image"
 	"log"
 	"net/http"
@@ -32,7 +33,9 @@ type ResponseBody struct {
 }
 
 type BarcodeData struct {
-	Barcode string `json:"barcode"`
+	Barcode   string `json:"barcode"`
+	Filename  string `json:"filename"`
+	Bucket    string `json:"bucket"`
 }
 
 func getS3Client(ctx context.Context) (*s3.Client, error) {
@@ -110,6 +113,7 @@ func callRubyEndpoint(data BarcodeData) error {
 func HandleRequest(ctx context.Context, s3Event events.S3Event) (Response, error) {
 	var pdfBytes []byte
 	var err error
+	var filename, bucket string
 
 	if testPath := os.Getenv("TEST_PDF_PATH"); testPath != "" {
 		// Local testing mode - read file directly
@@ -117,11 +121,14 @@ func HandleRequest(ctx context.Context, s3Event events.S3Event) (Response, error
 		if err != nil {
 			return Response{StatusCode: 500, Body: "Error reading test PDF"}, err
 		}
+		filename = filepath.Base(testPath)
+		bucket = "test-bucket"
 	} else {
 		// Get the S3 bucket and key
 		record := s3Event.Records[0]
-		bucket := record.S3.Bucket.Name
+		bucket = record.S3.Bucket.Name
 		key := record.S3.Object.Key
+		filename = filepath.Base(key)
 
 		// Initialize S3 client
 		s3Client, err := getS3Client(ctx)
@@ -196,13 +203,17 @@ func HandleRequest(ctx context.Context, s3Event events.S3Event) (Response, error
 			}
 			if barcode != "" {
 				log.Printf("Found barcode in image %s: %s", file.Name(), barcode)
-				data := BarcodeData{Barcode: barcode}
+				data := BarcodeData{
+					Barcode:  barcode,
+					Filename: filename,
+					Bucket:   bucket,
+				}
 				if err := callRubyEndpoint(data); err != nil {
 					log.Printf("Error sending barcode data to API: %v", err)
 				}
 				responseBody := ResponseBody{
-					Bucket:  os.Getenv("TEST_PDF_PATH"),
-					Key:     "test.pdf",
+					Bucket:  bucket,
+					Key:     filename,
 					Barcode: barcode,
 				}
 				

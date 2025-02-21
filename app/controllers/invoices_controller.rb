@@ -5,9 +5,12 @@ class InvoicesController < ApplicationController
 
   def process_upload
     @processed_barcode = ProcessedBarcode.new(
+      barcode_number: 'pending', # Will be updated by Go service
+      mask_used: '*29581',      # Default mask
+      success: false,           # Initially false until processed
+      processed_at: Time.current,
       original_filename: params[:invoice][:file].original_filename,
-      status: 'pending',
-      processed_at: Time.current 
+      s3_bucket: ENV['AWS_S3_BUCKET']
     )
 
     if @processed_barcode.save
@@ -20,7 +23,8 @@ class InvoicesController < ApplicationController
   rescue StandardError => e
     Rails.logger.error "Upload failed: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
-    render json: { success: false, message: "Upload failed: #{e.message}" }, status: :internal_server_error
+    render json: { success: false, message: 'Upload failed. Please try again.' }, 
+           status: :internal_server_error
   end
 
   private

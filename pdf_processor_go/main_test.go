@@ -12,7 +12,7 @@ import (
 
 func TestLocalPDFProcessing(t *testing.T) {
 	// Set test PDF path
-	testPDFPath := filepath.Join("test", "pdfs", "sample.pdf")
+	testPDFPath := filepath.Join("test", "pdfs", "sample2.pdf")
 
 	// Convert to absolute path
 	absPath, err := filepath.Abs(testPDFPath)
